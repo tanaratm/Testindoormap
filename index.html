@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="author" content="Poramet Wattaya (C) HERE 2022">
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+ <! to refresh page every 30 sec <meta http-equiv="refresh" content="30"> 
+    <title>Demo - Indoor Positioning</title>
+
+    <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <style>
+        #panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: #3E454E;
+            padding: 10px 10px;
+            min-width: 150px;
+            height: 80vh;
+            resize: both;
+            overflow: hidden;
+            box-shadow: 0em 0 0.4em 0 rgba(15, 22, 33, 0.6);
+            border-radius: 0.5em;
+            z-index: 1;
+            font-family: Helvetica;
+            color: #E4E6E9;
+            font-size: 12px;
+
+        }
+
+        #title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #details {
+            font-size: 12px;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+
+</head>
+
+<body style="margin: 0">
+
+    <div id="panel">
+        <div id="title">
+
+            <span style="vertical-align:middle">
+                <svg width="40" height="48" viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg">
+                    <title>Logo/Light</title>
+                    <g id="Logo/Light" fill="none" fill-rule="evenodd">
+                        <g id="Logo/Dark" transform="translate(0 5)">
+                            <g id="Logo/Dark-Copy">
+                                <path
+                                    d="M31.542 7.053c-.772-.9-.795-1.94 0-2.772.771-.786 1.77-.808 2.726 0l-2.726 2.772zM18.98 19.835c-.773-.901-.796-1.963 0-2.774.772-.785 1.772-.808 2.748 0l-2.748 2.774zm10.04-.23l2.817-2.866-3.042-3.098c-2.476-2.52-1.75-3.859-1.18-4.437.362-.37.726-.647.977-.786a7.14 7.14 0 0 0 1.362 1.872c2.95 3.028 6.178 2.61 8.654.071 1.477-1.504 2.182-2.89 2.362-3.584l-2.43-1.363c-.294.646-.977 1.757-1.747 2.542-1.341 1.386-2.615 1.386-3.476.67l5.068-5.131-.636-.647c-2.98-3.05-5.746-3.213-8.247-.67-1.657 1.686-1.885 3.767-1.159 5.662L26.48 5.599c-.181.07-.522.346-.863.693-.977 1.017-1.204 2.588-.953 3.628l-1.252-1.085-2.474 2.519 3.405 3.467c-2.702-2.265-5.133-2.15-7.38.138-2.272 2.31-2.136 5.132-.25 7.487l-.319-.322c-2.021-2.058-3.974-2.499-5.906-.51-1.136 1.133-1.317 2.242-1.204 3.237l-4.77-4.832-2.774 2.82 9.221 9.408h5.635l-3.884-3.953c-1.363-1.364-1.772-2.311-.932-3.166.613-.647 1.318-.625 2.18.253l4.68 4.785 2.817-2.865-3.498-3.559c2.77 2.335 5.792 1.758 8.087-.6 1.205-1.201 1.862-2.312 2.182-3.074L25.75 18.66c-.363.646-.908 1.455-1.498 2.08-1.364 1.385-2.635 1.385-3.497.668l5.02-5.107 3.246 3.304z"
+                                    id="Fill-5" fill="#FFF" />
+                                <path id="Fill-7" fill="#00AFAA" d="M0 32.194l5.654 5.754 5.655-5.754z" />
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+            </span>
+            &nbsp;&nbsp;&nbsp;Demo - Indoor Positioning
+        </div>
+        <p></p>
+        <div id="details"></div>
+    </div>
+
+    <div id="map"></div>
+
+    <script type="text/javascript">
+
+        var token = 'Bearer h1.3YLW98-LBb6l6q4aIU1eiw.umw_KIOXFwoH1K-77_3tC9INizXhSDKxaWcqnYHhqRQRrPH0ZJpJJihG1MSjVV2dwJFS6afJde1KYKB54ENfA7FjBNIcqusQDJEthKDpK_GVIhmz5sIZCque4x2psMV9SnO86RM9_kRR-3gYwsU2LuyIL30tvxMPrxQ0ladUcQOfDcaZ6gvRXaQbSS14u-MLj60wv6RsWMFjbu2s-4tvEbIO5GaUZ8wj7c2SHzdBU6TLEBct1JdZhZU2T6QiISgVxlONTCeUuLHRGk8H6QTn5pWOGz7ihRiQVhjx7gZz6DzSKgbyhXNR62rowm-U6pD23-tkwNmyBxeP6XjZXt-WZ32xlZwQ5xu0lgOKOE1k-QIRJ2Ie76O9r1zf7lRBBnWiy3Tg-xJHkkdvZcdqKDMhPDpPTb_jU5YBTh_YAEeqmqA_J4Jo6JgMutgJFeMvU1UttxyXDRAIeuFVB3paOK2oWg.klwDm-92AdDyKT-r7c5XAojJ-YpGLlRUerUvYkkjP4ELiXPM3HfLzpBs9iKyC_kiS9OUg425G7NvZZrPF1UcC_bzTr-ZHqF1dqpyQOC85w1AQOeCFK79vE5hYJUqr2ojUtg7_Z84VMWqYUJJnoLwrVn7slIOjch9VheVNPjjNb3v0Jt-3hXQcHMNH7jxdg64v8FF_lIb5Ey73d9AJ7hiyz0xLRsC1Xfml6h0Achwe2V9S7bDAbItngF1fs6E1do3OgNubzVjX-sOxvlKQmp2bLaLJzcYl4dHW-AV9xY5wzZKsUwhTtT3thzyoWhN6cnVIzgVhYtYImL_YOWOyjSAcA';
+
+        var trackingId = [
+            'HERE-75e89cc0-dc5f-49bd-9f18-6803c135ec8e',
+            'HERE-7cfa14e7-3d77-4701-bd26-39c900a2d240',
+			'HERE-403aabf2-79fb-4f62-aae6-fe8029c4c32f'
+        ];
+		var intervalId = window.setInterval(
+
+
+        function getShadows() {
+            var id;
+            for (var i in trackingId) {
+			group.removeAll();
+                id = 0;
+                var settings = {
+                    'method': 'GET',
+                    'url': 'https://tracking.api.here.com/shadows/v2/' + trackingId[i],
+                    'headers': { 'Authorization': token }
+                };
+                $.ajax(settings).done(function (response) {
+                    addInfoBubble(map, response);
+                    addDetailsToPanel(response, trackingId[id]);
+                    id++;
+                });
+            }
+        }, 5000);
+
+        var group = new H.map.Group();
+
+        function addInfoBubble(map, response) {
+
+            console.log(response);
+
+            map.addObject(group);
+            group.addEventListener('tap', function (evt) {
+                var bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
+                    content: evt.target.getData()
+                });
+                ui.addBubble(bubble);
+            }, false);
+
+            addMarkerToGroup(group, { lat: response.reported.position.lat, lng: response.reported.position.lng, alt: 25 },
+                '<div style="white-space: nowrap">Name: ' + response.reported.system.client.name + '</div>' +
+                '<div style="white-space: nowrap">Model: ' + response.reported.system.client.model + '</div>'
+            );
+        }
+
+        function addMarkerToGroup(group, coordinate, html) {
+            var marker = new H.map.Marker(coordinate);
+            marker.setData(html);
+            group.addObject(marker);
+        }
+
+        function addDetailsToPanel(response, id) {
+            // console.log(response);
+            document.getElementById('details').insertAdjacentHTML('beforeend', id + '<br><textarea style="height: 150px; width: 300px">' + JSON.stringify(response.reported, null, 2) + '</textarea><p></p>');
+        }
+
+        function addShapesToMap(map) {
+
+            //SO boundary
+            var polygon1 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                    13.7261217942164, 100.543034158414, 0,
+					13.7261218565109, 100.543034158414, 0,
+					13.7261218565109, 100.543034158414, 0,
+13.7262334258583, 100.543034516607, 0,
+13.7262334258583, 100.543034516607, 0,
+13.7262608977076, 100.543034532181, 0,
+13.7262605862354, 100.542931061111, 0,
+13.7263553983776, 100.542929752928, 0,
+13.7263558967331, 100.542982827793, 0,
+13.7263449329112, 100.542982827793, 0,
+13.7263451820889, 100.543048610725, 0,
+13.7263962635322, 100.54304910908, 0,
+13.7263952668211, 100.543305513008, 0,
+13.72630257269, 100.543306509719, 0,
+13.7263023235122, 100.543266392097, 0,
+13.7262678123908, 100.543266578981, 0,
+13.7262342979804, 100.543266641275, 0,
+13.726234796336, 100.543303270408, 0,
+13.7261228999429, 100.543303488438, 0,
+13.7261217942164, 100.543034158414, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 1,
+                style: { strokeColor: 'none' }
+            });
+
+            // Meeting room
+            var polygon2 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                    13.7262334258583, 100.543034516607, 0,
+13.7262337762645, 100.543127284713, 0,
+13.7262338074118, 100.543137096088, 0,
+13.726233838559, 100.543146969757, 0,
+13.7262339631479, 100.54316867937, 0,
+13.7262339631479, 100.543177213709, 0,
+13.7262340254423, 100.543185374281, 0,
+13.7262340877368, 100.543202567547, 0,
+13.7262340254423, 100.543202442959, 0,
+13.7262340877368, 100.543211101886, 0,
+13.7262343369145, 100.543242062224, 0,
+13.7262343369145, 100.543251157213, 0,
+13.7262342746201, 100.543258944018, 0,
+13.7262342979804, 100.543266641275, 0,
+13.726234796336, 100.543303270408, 0,
+13.7261228999429, 100.543303488438, 0,
+13.7261217942164, 100.543034158414, 0,
+13.7262334258583, 100.543034516607, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 2,
+                style: {
+                    strokeColor: '#1854cc',
+                    lineWidth: 1
+                }
+            });
+
+            // stage
+            var polygon3 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                    13.72621799241, 100.543037662477, 0,
+13.7262184907656, 100.543071799831, 0,
+13.7261419931896, 100.543071550653, 0,
+13.7261422423674, 100.543038160832, 0,
+13.72621799241, 100.543037662477, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 2.5,
+                style: {
+					fillColor: '#D1D1D1',
+                    strokeColor: '#1854cc',
+                    lineWidth: 1
+                }
+            });
+
+            // lobby
+            var polygon4 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                    13.7262608977076, 100.543034532181, 0,
+13.7262641525922, 100.543034469886, 0,
+13.7262641993131, 100.543050090218, 0,
+13.7262683886144, 100.543050168086, 0,
+13.726268201731, 100.543090706195, 0,
+13.7263065439607, 100.543090721768, 0,
+13.7263071357579, 100.543103741307, 0,
+13.7263554762456, 100.543104239662, 0,
+13.7263554762456, 100.543128409906, 0,
+13.7263076341134, 100.543128160729, 0,
+13.7263068865801, 100.543147845772, 0,
+13.7263073226412, 100.543185658499, 0,
+13.72635497789, 100.543185222438, 0,
+13.72635497789, 100.543208395971, 0,
+13.7263066374023, 100.543208894327, 0,
+13.7263068865801, 100.543221353215, 0,
+13.7262681394366, 100.543221726982, 0,
+13.7262678123908, 100.543266578981, 0,
+13.7262342979804, 100.543266641275, 0,
+13.7262342746201, 100.543258944018, 0,
+13.7262343369145, 100.543251157213, 0,
+13.7262343369145, 100.543242062224, 0,
+13.7262342746201, 100.543218888691, 0,
+13.7262340877368, 100.543211101886, 0,
+13.7262340877368, 100.543202567547, 0,
+13.7262340254423, 100.543202442959, 0,
+13.7262340254423, 100.543185374281, 0,
+13.7262339631479, 100.543177213709, 0,
+13.7262339631479, 100.54316867937, 0,
+13.726233838559, 100.543146969757, 0,
+13.7262338074118, 100.543137096088, 0,
+13.7262337762645, 100.543127284713, 0,
+13.7262334258583, 100.543034516607, 0,
+13.7262608977076, 100.543034532181, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 1.5,
+                style: {
+					fillColor: '#D1D1D1',
+                    strokeColor: '#1854cc',
+                    lineWidth: 1
+                }
+            });
+
+            // Booth1
+            var polygon5 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                   13.726291608868, 100.543203801756, 0,
+13.7262914842791, 100.543213036907, 0,
+13.726272562342, 100.543213099201, 0,
+13.7262726713573, 100.543203926345, 0,
+13.726291608868, 100.543203801756, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 2,
+                style: {
+                    strokeColor: '#1854cc',
+                    lineWidth: 1
+                }
+            });
+
+            // Booth2
+            var polygon6 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                    13.7262554625175, 100.543145758909, 0,
+13.7262554625175, 100.54316905703, 0,
+13.7262462040059, 100.543169119325, 0,
+13.7262459937621, 100.543145758909, 0,
+13.7262554625175, 100.543145758909, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 2,
+                style: {
+                    strokeColor: '#1854cc',
+                    lineWidth: 1
+                }
+            });
+
+            // Booth3
+            var polygon7 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                    13.7262911027256, 100.543098150381, 0,
+13.7262911182992, 100.543107260943, 0,
+13.7262714332553, 100.543107089633, 0,
+13.7262713086664, 100.543097916777, 0,
+13.7262911027256, 100.543098150381, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 2,
+                style: {
+                    strokeColor: '#1854cc',
+                    lineWidth: 1
+                }
+            });
+
+            // Booth4
+            var polygon8 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                   13.7262976825762, 100.543128121795, 0,
+13.7262977059366, 100.543185300306, 0,
+13.7262852937688, 100.543185347027, 0,
+13.726285324916, 100.543128145155, 0,
+13.7262976825762, 100.543128121795, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 2,
+                style: {
+                    strokeColor: '#1854cc',
+                    lineWidth: 1
+                }
+            });
+
+            // Door
+            var polygon9 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                    13.7262337762645, 100.543127284713, 0,
+13.726233838559, 100.543146969757, 0,
+13.7262258648703, 100.543146969757, 0,
+13.7262338074118, 100.543137096088, 0,
+13.726226394373, 100.54312731586, 0,
+13.7262337762645, 100.543127284713, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 2.5,
+                style: {
+                    fillColor: '#D1D1D1',
+                    strokeColor: '#A3A3A3',
+                    lineWidth: 1
+                }
+            });
+
+            // Door
+            var polygon10 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                   13.7262339631479, 100.54316867937, 0,
+13.7262339008534, 100.543168741665, 0,
+13.7262340254423, 100.543185374281, 0,
+13.7262261140481, 100.543185374281, 0,
+13.7262339631479, 100.543177213709, 0,
+13.7262261763425, 100.54316867937, 0,
+13.7262339631479, 100.54316867937, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 2.5,
+                style: {
+                    fillColor: '#D1D1D1',
+                    strokeColor: '#A3A3A3',
+                    lineWidth: 1
+                }
+            });
+
+            // Door
+            var polygon11 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                   13.7262340254423, 100.543202442959, 0,
+13.7262340877368, 100.543202567547, 0,
+13.7262342746201, 100.543218888691, 0,
+13.7262262386369, 100.543218826397, 0,
+13.7262340877368, 100.543211101886, 0,
+13.7262263632258, 100.543202505253, 0,
+13.7262340254423, 100.543202442959, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 2.5,
+                style: {
+                    fillColor: '#D1D1D1',
+                    strokeColor: '#A3A3A3',
+                    lineWidth: 1
+                }
+            });
+
+            // Door
+            var polygon12 = new H.map.Polygon(new H.geo.Polygon(new H.geo.LineString(
+                [
+                    13.7262343369145, 100.543242062224, 0,
+13.7262342746201, 100.543258944018, 0,
+13.7262259894592, 100.543258944018, 0,
+13.7262343369145, 100.543251157213, 0,
+13.7262260517536, 100.543242373696, 0,
+13.7262343369145, 100.543242062224, 0
+                ]
+            )), {
+                elevation: 25,
+                extrude: 2.5,
+                style: {
+                    fillColor: '#D1D1D1',
+                    strokeColor: '#A3A3A3',
+                    lineWidth: 1
+                }
+            });
+
+     
+
+            map.addObjects([polygon1, polygon2, polygon3, polygon4, polygon5, polygon6, polygon7, polygon8, polygon9, polygon10, polygon11, polygon12]);
+        }
+
+        /**
+         * Boilerplate map initialization code starts below:
+         */
+
+        //Step 1: initialize communication with the platform
+        // In your own code, replace variable window.apikey with your own apikey
+        var platform = new H.service.Platform({
+            apikey: 'Qzff5h81ntbTyrb27TYFPsgqheiBYiuANF1mt8mrC4U'
+        });
+        var defaultLayers = platform.createDefaultLayers({
+		lg: 'th'
+		});
+
+        //Step 2: initialize a map - this map is centered over Europe
+        var map = new H.Map(document.getElementById('map'),
+            defaultLayers.vector.normal.map, {
+            center: { lat: 13.726260,lng: 100.543034 }, // 13.721036983946638, 100.5579655128767
+            zoom: 20,
+            pixelRatio: window.devicePixelRatio || 1
+        });
+
+        // map.getViewModel().setLookAtData({ tilt: 38, heading: 145 });
+        // add a resize listener to make sure that the map occupies the whole container
+        window.addEventListener('resize', () => map.getViewPort().resize());
+
+        //Step 3: make the map interactive
+        // MapEvents enables the event system
+        // Behavior implements default interactions for pan/zoom (also on mobile touch environments)
+        var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+
+        // Create the default UI components
+        var ui = H.ui.UI.createDefault(map, defaultLayers);
+
+        // Now use the map as required...
+
+        addShapesToMap(map);
+        getShadows();
+		setTimeout(getShadows, 500);
+		setInterval(getShadows, 5000);
+
+    </script>
+
+</body>
+
+</html>
